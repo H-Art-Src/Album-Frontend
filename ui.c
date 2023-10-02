@@ -379,6 +379,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     //--------------------------------------------------------------------------------------
     UnloadTexture(bill);        // Unload texture
     UnloadTexture(billSelected);
+    UnloadTexture(billCenterer);
     for(int i=0; i < gmTotalCoverTextures; i++) UnloadTexture(gmCovers[i]);//sizeof(gmCovers);
     CloseWindow();              // Close window and OpenGL context
     //free up memory
