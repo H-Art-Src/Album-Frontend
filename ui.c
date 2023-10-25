@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+//#include <libcurl.h>
 //#include <unistd.h>
 
 
@@ -11,7 +12,7 @@ static void DrawTextBoxedSelectable(Font font, const char *text, Rectangle rec, 
 static bool checkCollision(Camera camera,Vector3 origin,float buttonScaleX , float buttonScaleY, float buttonScaleZ);
 static bool drawButton(char* text, Rectangle rec );
 
-int GLOBAL_HOVERING = 0;
+int GLOBAL_HOVERING = 3;
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -19,9 +20,10 @@ int GLOBAL_HOVERING = 0;
 int discogs()
 {
     printf("nigga\ninfinity\n");
+    return WindowShouldClose();
 }
 
-int main(void)
+int justgo(void (*functionPtr)())
 {
     //window
     int screenWidth = 800;
@@ -295,7 +297,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         //---------------------------------------------------------------------------------- 
         if (drawButton("+INSTALL+",(Rectangle){ container.x , container.y + container.height + 8 , 180, 32 }) )
         {
-            
+            functionPtr();
         }
         //----------------------------------------------------------------------------------
         //TOGGLE SHORT MODE

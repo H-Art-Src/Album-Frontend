@@ -1,30 +1,19 @@
-from ctypes import *
-from discogs_client import *
-from multiprocessing import Process
+import ctypes as c
+from ctypes import CDLL
+import discogs_client
+#from discogs_client import *
 
-so_ui = "ui.so"
-uiFunc = CDLL(so_ui)
+d = discogs_client.Client('my_user_agent/1.0', user_token='ithHqUJMHmgldAjtELqHEzMyzQyxJDeaIdLpoLsp')
 
-def ui():
-    uiFunc.main()
+print(d.release(20017387).artists[0].name, type(d.release(1443762).artists))
 
-def uiVar():
-    uiFunc.discogs()
+uiFunc = CDLL("ui.so")
 
-if __name__ == "__main__":
-    p1 = Process(target=ui)
-    p1.start()
-    p2 = Process(target=uiVar)
-    p2.start()
-    p1.join()
-    p2.join()
 
-#uiFunc.init()
+@c.CFUNCTYPE(None)
+def callback():
+    print("Yes!!!!")
 
-#while uiFunc.UIrender():
-#    print("running")
-
-#uiFunc.deInit()
-
+uiFunc.justgo(callback)
 
 print("end python main")
