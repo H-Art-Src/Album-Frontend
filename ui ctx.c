@@ -1,3 +1,16 @@
+/*******************************************************************************************
+*
+*   raylib [models] example - Drawing billboards
+*
+*   Example originally created with raylib 1.3, last time updated with raylib 3.5
+*
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2015-2023 Ramon Santamaria (@raysan5)
+*
+********************************************************************************************/
+
 #include "raylib.h"
 #include "raymath.h"
 #include <string.h>
@@ -15,98 +28,105 @@ int GLOBAL_HOVERING = 0;
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
+//window
+int screenWidth = 800;
+int screenHeight = 450;
 
-int discogs()
-{
-    printf("nigga\ninfinity\n");
-}
+Texture2D bill;
+Texture2D billSelected;
+Texture2D billCenterer;
 
-int main(void)
+
+//file dir string 
+char fileDir[1024] = "";
+char* prefix = "resources/"; //ASSETS_PATH or ../../resources for windows/linux , ../resources/ for mac.
+//char cwd[96];
+//if (getcwd(cwd, sizeof(cwd)) != NULL) { printf("Current working dir: %s\n", cwd);}
+// Initialization - 3d background
+//--------------------------------------------------------------------------------------
+// Define the camera to look into our 3d world
+Camera camera = { 0 };
+
+
+// Entire billboard texture, source is used to take a segment from a larger texture.
+Rectangle source; //= { 0.0f, 0.0f, (float)bill.width, (float)bill.height };
+// NOTE: Billboard locked on axis-Y
+Vector3 billUp = { 0.0f, 1.0f, 0.0f };
+//--------------------------------------------------------------------------------------
+
+// Initialization - foreground
+//--------------------------------------------------------------------------------------
+
+const char text[] = "Text cannot escape\tthis container\t...word wrap also works when active so here's \
+a long text for testing.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \
+tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet risus nullam eget felis eget.";
+
+bool resizing = false;
+bool wordWrap = true;
+
+Rectangle container;
+Rectangle resizer;
+
+// Minimum width and heigh for the container rectangle
+const float minWidth = 60;
+const float minHeight = 60;
+float maxWidth;// = screenWidth - 50.0f;
+float maxHeight;// = screenHeight - 160.0f;
+
+Vector2 lastMouse = { 0.0f, 0.0f }; // Stores last mouse coordinates
+Color borderColor = MAROON;         // Container border color
+Font font;// = GetFontDefault();       // Get default system font
+
+//GAMEMANAGER DATA
+char* gmTitles[] = {"NUMBER 1","QUAKE","JOJO","YO","EXAMPLES","OK","second to last one","LAST ONE"};
+//char* gmTitles[] = {"NUMBER 1","NUMBAH 2"};
+int gmLibSize = (int){sizeof(gmTitles) / sizeof(gmTitles[0])};
+int gmSelect = -1;
+int gmLastSelect = -1;
+float gmScroll = 0.0f;
+float gmScrollMin = -5.0f;
+float gmScrollMax; //= gmLibSize*1.0f +2.5f;
+float gmSeperationScale = 1.0f;
+bool gmShortMode = false;
+//ANIMATION DATA 
+float scrollSmootherBank = 0.0f;
+float selectionChangeLerp = 0.0f;
+float currentScrollSpeed = 0.19f;
+bool finishedSelectionChange = true;
+Vector3 lastSelectionLocation = (Vector3){ 0.0f, 0.0f, 0.0f }; //doesn't matter what initial value it is becuase of TEMP.
+//TEXTURE DATA
+Texture2D gmCovers[1024];
+int gmTotalCoverTextures = 0;
+void init()
 {
-    //window
-    int screenWidth = 800;
-    int screenHeight = 450;
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "3DT GAME MANAGER");
 
-    //file dir string 
-    char fileDir[1024] = "";
-    char* prefix = "resources/"; //ASSETS_PATH or ../../resources for windows/linux , ../resources/ for mac.
-    char cwd[96];
-    if (getcwd(cwd, sizeof(cwd)) != NULL) { printf("Current working dir: %s\n", cwd);}
-    // Initialization - 3d background
-    //--------------------------------------------------------------------------------------
-    // Define the camera to look into our 3d world
-    Camera camera = { 0 };
     camera.position = (Vector3){ 0.0f, 3.0f, 10.0f };    // Camera position
     camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 5.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
-    
+
+    maxWidth = screenWidth - 50.0f;
+    maxHeight = screenHeight - 160.0f;
+
+
+    source = (Rectangle){ 0.0f, 0.0f, (float)bill.width, (float)bill.height };
+    gmScrollMax = gmLibSize*1.0f +2.5f;
     //Load textures
     strcat(fileDir, prefix);
     strcat(fileDir,"billboard.png");
-    Texture2D bill = LoadTexture(fileDir);    // default texture
+    bill = LoadTexture(fileDir);    // default texture
     strcpy(fileDir,"");
     strcat(fileDir, prefix);
     strcat(fileDir,"selected.png");    
-    Texture2D billSelected = LoadTexture(fileDir);    // selected album texture
+    billSelected = LoadTexture(fileDir);    // selected album texture
     strcpy(fileDir,"");
     strcat(fileDir, prefix);
     strcat(fileDir,"centering.png");    
-    Texture2D billCenterer = LoadTexture(fileDir);    // selected album texture
+    billCenterer = LoadTexture(fileDir);    // selected album texture
     strcpy(fileDir,"");
 
-    // Entire billboard texture, source is used to take a segment from a larger texture.
-    Rectangle source = { 0.0f, 0.0f, (float)bill.width, (float)bill.height };
-    // NOTE: Billboard locked on axis-Y
-    Vector3 billUp = { 0.0f, 1.0f, 0.0f };
-    SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
-
-    // Initialization - foreground
-    //--------------------------------------------------------------------------------------
-
-    const char text[] = "Text cannot escape\tthis container\t...word wrap also works when active so here's \
-a long text for testing.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \
-tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet risus nullam eget felis eget.";
-
-    bool resizing = false;
-    bool wordWrap = true;
-
-    Rectangle container = { screenWidth/2, 25.0f, screenWidth/2 - 50.0f, screenHeight - 250.0f };
-    Rectangle resizer = { container.x + container.width - 17, container.y + container.height - 17, 14, 14 };
-
-    // Minimum width and heigh for the container rectangle
-    const float minWidth = 60;
-    const float minHeight = 60;
-    float maxWidth = screenWidth - 50.0f;
-    float maxHeight = screenHeight - 160.0f;
-
-    Vector2 lastMouse = { 0.0f, 0.0f }; // Stores last mouse coordinates
-    Color borderColor = MAROON;         // Container border color
-    Font font = GetFontDefault();       // Get default system font
-
-    //GAMEMANAGER DATA
-    char* gmTitles[] = {"NUMBER 1","QUAKE","JOJO","YO","EXAMPLES","OK","second to last one","LAST ONE"};
-    //char* gmTitles[] = {"NUMBER 1","NUMBAH 2"};
-    int gmLibSize = (int){sizeof(gmTitles) / sizeof(gmTitles[0])};
-    int gmSelect = -1;
-    int gmLastSelect = -1;
-    float gmScroll = 0.0f;
-    float gmScrollMin = -5.0f;
-    float gmScrollMax = gmLibSize*1.0f +2.5f;
-    float gmSeperationScale = 1.0f;
-    bool gmShortMode = false;
-    //ANIMATION DATA 
-    float scrollSmootherBank = 0.0f;
-    float selectionChangeLerp = 0.0f;
-    float currentScrollSpeed = 0.19f;
-    bool finishedSelectionChange = true;
-    Vector3 lastSelectionLocation = (Vector3){ 0.0f, 0.0f, 0.0f }; //doesn't matter what initial value it is becuase of TEMP.
-    //TEXTURE DATA
-    Texture2D gmCovers[1024];
-    int gmTotalCoverTextures = 0;
     char* testCovers[] = {
         "billboard.png",
         "billboard-small.png",
@@ -130,9 +150,19 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     gmScrollMax = gmLibSize*1.0f + 5.0f;
     gmSeperationScale = 1.0f;
 
+    //
+    container = (Rectangle){ screenWidth/2, 25.0f, screenWidth/2 - 50.0f, screenHeight - 250.0f };
+    resizer = (Rectangle){ container.x + container.width - 17, container.y + container.height - 17, 14, 14 };
+
+    SetTargetFPS(60);
+}
+
+
     // Main loop
-    while (!WindowShouldClose())
-    {   
+    // while (!WindowShouldClose())
+    // {
+bool UIrender()
+{
         //inputs
         //----------------------------------------------------------------------------------
         bool inputM1 = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
@@ -367,7 +397,11 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         if(GLOBAL_HOVERING)GLOBAL_HOVERING--;//timeout the button hovering to prevent collision
         EndDrawing();
         //----------------------------------------------------------------------------------
-    }
+        return !WindowShouldClose();
+}
+
+void deInit()
+{
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadTexture(bill);        // Unload texture
@@ -378,7 +412,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     //free up memory
     //--------------------------------------------------------------------------------------
 
-    return 0;
+    //return 0;
 }
 //--------------------------------------------------------------------------------------
 // button boolean. Draw a button and return true if clicked.
@@ -554,5 +588,5 @@ static void DrawTextBoxedSelectable(Font font, const char *text, Rectangle rec, 
         }
 
         if ((textOffsetX != 0) || (codepoint != ' ')) textOffsetX += glyphWidth;  // avoid leading spaces
-    }
+}
 }
