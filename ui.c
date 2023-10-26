@@ -16,13 +16,6 @@ int GLOBAL_HOVERING = 3;
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-
-int discogs()
-{
-    printf("nigga\ninfinity\n");
-    return WindowShouldClose();
-}
-
 int justgo(void (*functionPtr)())
 {
     //window
@@ -34,8 +27,8 @@ int justgo(void (*functionPtr)())
     //file dir string 
     char fileDir[1024] = "";
     char* prefix = "resources/"; //ASSETS_PATH or ../../resources for windows/linux , ../resources/ for mac.
-    char cwd[96];
-    if (getcwd(cwd, sizeof(cwd)) != NULL) { printf("Current working dir: %s\n", cwd);}
+    //char cwd[96];
+    //if (getcwd(cwd, sizeof(cwd)) != NULL) { printf("Current working dir: %s\n", cwd);}
     // Initialization - 3d background
     //--------------------------------------------------------------------------------------
     // Define the camera to look into our 3d world
@@ -160,7 +153,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         float scrollDelta = -scrollVector.y - kUp*.25f + kDown*.25f;
 
         //Scroll Animation
-        if (scrollVector.y != 0.0f | kUp | kUp) currentScrollSpeed = 0.19f; // we want to return the original speed if nos crolling is happening
+        if (scrollVector.y != 0.0f || kUp || kUp) currentScrollSpeed = 0.19f; // we want to return the original speed if nos crolling is happening
         scrollSmootherBank += (scrollSmootherBank > 1.0f && scrollDelta > 0.0f) ? 0.0f : ( (scrollSmootherBank < -1.0f  && scrollDelta < 0.0f) ? 0.0f : scrollDelta);
         scrollDelta = scrollSmootherBank*currentScrollSpeed;
         scrollSmootherBank -= scrollSmootherBank*currentScrollSpeed;
