@@ -5,7 +5,7 @@ import urllib.request
 import os
 from PIL import Image
 
-uiFunc = CDLL("ui.so")
+uiFunc = CDLL("build/ui.so")
 d = discogs_client.Client('my_user_agent/1.0', user_token='ithHqUJMHmgldAjtELqHEzMyzQyxJDeaIdLpoLsp')
 
 class albumEntry(Structure):
@@ -29,7 +29,6 @@ entryArr = (albumEntry * len(finalList))()
 i = 0
 for release in finalList:
     print("final listing - " + release.title)
-    #entryArr.__setitem__(i , (albumEntry(b"CodersLegacy" , b"nothing " , b"resources/billboard.png")))
     path = "coverImages/" + str(release.id) + ".jpeg"
     path2 = "coverImages/" + str(release.id) + ".png"
     if not os.path.isfile(path2):
