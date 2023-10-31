@@ -12,11 +12,18 @@ static void DrawTextBoxedSelectable(Font font, const char *text, Rectangle rec, 
 static bool checkCollision(Camera camera,Vector3 origin,float buttonScaleX , float buttonScaleY, float buttonScaleZ);
 static bool drawButton(char* text, Rectangle rec );
 
+typedef struct albumEntry
+{
+    char *title;
+    char *desc;
+    char *img;
+} albumEntry;
+
 int GLOBAL_HOVERING = 3;
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int justgo(void (*functionPtr)())
+int justgo(void (*functionPtr)() , struct albumEntry entries[] , int size)
 {
     //window
     int screenWidth = 800;
@@ -82,10 +89,8 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     Color borderColor = MAROON;         // Container border color
     Font font = GetFontDefault();       // Get default system font
 
-    //GAMEMANAGER DATA
-    char* gmTitles[] = {"NUMBER 1","QUAKE","JOJO","YO","EXAMPLES","OK","second to last one","LAST ONE"};
-    //char* gmTitles[] = {"NUMBER 1","NUMBAH 2"};
-    int gmLibSize = (int){sizeof(gmTitles) / sizeof(gmTitles[0])};
+    //GENERAL DATA
+    int gmLibSize = 0;
     int gmSelect = -1;
     int gmLastSelect = -1;
     float gmScroll = 0.0f;
@@ -101,7 +106,8 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     Vector3 lastSelectionLocation = (Vector3){ 0.0f, 0.0f, 0.0f }; //doesn't matter what initial value it is becuase of TEMP.
     //TEXTURE DATA
     Texture2D gmCovers[1024];
-    int gmTotalCoverTextures = 0;
+    //int gmTotalCoverTextures = 0;
+    /*
     char* testCovers[] = {
         "billboard.png",
         "billboard-small.png",
@@ -117,6 +123,13 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         strcpy(fileDir, "");
 
         gmTotalCoverTextures++;
+    }
+    */
+
+    for(int i = 0 ; i < size ; i++)
+    {
+        gmCovers[i] = LoadTexture(entries[i].img);
+        gmLibSize++;
     }
 
     //DEFAULT EXPAND MODE OPTIONS
@@ -269,16 +282,16 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         {
             Vector3 titleCardOrigin = (Vector3){-5.0f , 5.0f + gmScroll*2.0f  + ((float)i) * 3.0f * gmSeperationScale - (float)gmLibSize*3.0f  , 0.0f };
             Vector2 w2s = GetWorldToScreen(titleCardOrigin , camera);
-            if (gmShortMode) {DrawText(gmTitles[i],  w2s.x , w2s.y - 8 , (int)16.0f * screenScale.y, ORANGE);}
+            if (gmShortMode) {DrawText(entries[i].title,  w2s.x , w2s.y - 8 , (int)16.0f * screenScale.y, ORANGE);}
             else
             {
                 if(titleCardOrigin.y > 5.0f) {titleCardOrigin.x = -titleCardOrigin.y; titleCardOrigin.y = 5.0f; w2s = GetWorldToScreen(titleCardOrigin , camera);}
-                DrawText(gmTitles[i],  w2s.x - (int)(42.0f * screenScale.x) , w2s.y + (int)(64.0f * screenScale.y) , (int)(16.0f * screenScale.y), ORANGE);
+                DrawText(entries[i].title,  w2s.x - (int)(42.0f * screenScale.x) , w2s.y + (int)(64.0f * screenScale.y) , (int)(16.0f * screenScale.y), ORANGE);
             }
         }
         if (gmSelect>=0)
         {
-            DrawTextBoxed(font, gmTitles[gmSelect], (Rectangle){ container.x + 4 ,  container.y , container.width - 4, container.height - 4 }, 20.0f, 2.0f, wordWrap, GRAY);
+            DrawTextBoxed(font, entries[gmSelect].desc, (Rectangle){ container.x + 4 ,  container.y , container.width - 4, container.height - 4 }, 20.0f, 2.0f, wordWrap, GRAY);
         }
         else
         {
@@ -368,7 +381,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     UnloadTexture(bill);        // Unload texture
     UnloadTexture(billSelected);
     UnloadTexture(billCenterer);
-    for(int i=0; i < gmTotalCoverTextures; i++) UnloadTexture(gmCovers[i]);//sizeof(gmCovers);
+    for(int i=0; i < gmLibSize; i++) UnloadTexture(gmCovers[i]);//sizeof(gmCovers);
     CloseWindow();              // Close window and OpenGL context
     //free up memory
     //--------------------------------------------------------------------------------------

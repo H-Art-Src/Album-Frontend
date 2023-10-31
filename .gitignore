@@ -1,2 +1,4 @@
-
-ui.so
+*.so
+*.jpeg
+*.png
+*.jpg
