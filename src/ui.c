@@ -19,6 +19,9 @@ typedef struct albumEntry
     char *img;
 } albumEntry;
 
+const Vector3 selectedLocation = (Vector3){ 0.0f, 3.0f, 5.0f };
+
+
 int GLOBAL_HOVERING = 3;
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -218,14 +221,14 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
             //draw correct cover based on select status
             if(i == gmSelect)
             {
-                if(!gmShortMode) DrawBillboard(camera, billCover, Vector3Lerp(titleCardOrigin , (Vector3){ 0.0f, 3.0f, 1.0f } , selectionChangeLerp) , 2.0f, WHITE);
-                else DrawBillboard(camera, billCover, (Vector3){ 0.0f, 3.0f, 1.0f } , 2.0f, WHITE);
+                if(!gmShortMode) DrawBillboard(camera, billCover, Vector3Lerp(titleCardOrigin , selectedLocation, selectionChangeLerp) , 2.0f, WHITE);
+                else DrawBillboard(camera, billCover, selectedLocation , 2.0f, WHITE);
                 DrawBillboard(camera, billSelected, Vector3Lerp(  lastSelectionLocation , titleCardOrigin , selectionChangeLerp) , 2.0f, WHITE);//bill selected image is always 2.0f
                 lastSelectionLocationTEMP = titleCardOrigin;
             }
             else if(i == gmLastSelect)
             {
-                if(!gmShortMode) DrawBillboard(camera, billCover, Vector3Lerp( (Vector3){ 0.0f, 3.0f, 1.0f } , titleCardOrigin , selectionChangeLerp)  , bbSize, WHITE);
+                if(!gmShortMode) DrawBillboard(camera, billCover, Vector3Lerp( selectedLocation , titleCardOrigin , selectionChangeLerp)  , bbSize, WHITE);
                 //lastSelectionLocation = titleCardOrigin; //Optional animation option: have the selector A for the lerp always be it's current location.
             }
             else if(!gmShortMode)
@@ -301,10 +304,10 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         //----------------------------------------------------------------------------------
         //INSTALL AND PLAY
         //---------------------------------------------------------------------------------- 
-        if (drawButton("+INSTALL+",(Rectangle){ container.x , container.y + container.height + 8 , 180, 32 }) )
-        {
-            functionPtr();
-        }
+        // if (drawButton("+INSTALL+",(Rectangle){ container.x , container.y + container.height + 8 , 180, 32 }) )
+        // {
+        //     functionPtr();
+        // }
         //----------------------------------------------------------------------------------
         //TOGGLE SHORT MODE
         //----------------------------------------------------------------------------------   
@@ -330,10 +333,10 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         //----------------------------------------------------------------------------------
         //DISTRO STATUS AND WELCOME TEXT.
         //----------------------------------------------------------------------------------
-        DrawRectangleRec((Rectangle){0,0,screenWidth,screenScale.y*50.0f} , (Color){50,50,50,150});
-        DrawText("DistroSite.com | Relevent Distro news",  (int)64.0f*screenScale.x , (int)16.0f*screenScale.y , (int)16.0f*screenScale.y , ORANGE);
-        DrawCircle((int)64.0f*screenScale.x -16 , (int)24.0f*screenScale.y, 12.0f, (Color){0,150,0,150});
-        DrawCircle((int)64.0f*screenScale.x -16 , (int)24.0f*screenScale.y, 8.0f, GREEN);
+        // DrawRectangleRec((Rectangle){0,0,screenWidth,screenScale.y*50.0f} , (Color){50,50,50,150});
+        // DrawText("DistroSite.com | Relevent Distro news",  (int)64.0f*screenScale.x , (int)16.0f*screenScale.y , (int)16.0f*screenScale.y , ORANGE);
+        // DrawCircle((int)64.0f*screenScale.x -16 , (int)24.0f*screenScale.y, 12.0f, (Color){0,150,0,150});
+        // DrawCircle((int)64.0f*screenScale.x -16 , (int)24.0f*screenScale.y, 8.0f, GREEN);
         //----------------------------------------------------------------------------------
         // Update dragable container
         //----------------------------------------------------------------------------------
