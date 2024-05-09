@@ -1,3 +1,7 @@
+#Purpose: Display all Discogs titles sent from python script.
+#Author: James R.
+
+
 #include "raylib.h"
 #include "raymath.h"
 #include <string.h>
