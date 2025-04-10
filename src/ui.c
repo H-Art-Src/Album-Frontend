@@ -113,25 +113,6 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     Vector3 lastSelectionLocation = (Vector3){ 0.0f, 0.0f, 0.0f }; //doesn't matter what initial value it is becuase of TEMP.
     //TEXTURE DATA
     Texture2D gmCovers[1024];
-    //int gmTotalCoverTextures = 0;
-    /*
-    char* testCovers[] = {
-        "billboard.png",
-        "billboard-small.png",
-        "billboard-double.png",
-        "billboard-double-down.png",
-        "billboard-512.png"
-    };
-    for(int i = 0; i < 5; i++)
-    {
-        strcat(fileDir, prefix);//ASSETS_PATH
-        strcat(fileDir, testCovers[i]);
-        gmCovers[i] = LoadTexture(fileDir);
-        strcpy(fileDir, "");
-
-        gmTotalCoverTextures++;
-    }
-    */
 
     for(int i = 0 ; i < size ; i++)
     {
