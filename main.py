@@ -3,7 +3,7 @@
 import ctypes as c
 from ctypes import CDLL, Structure
 import discogs_client
-import urllib.request 
+import requests
 import os
 from PIL import Image
 
@@ -17,7 +17,7 @@ for releaseNum in enteredList:
     testR = 0
     try:
         testR = d.release(releaseNum)
-        print(testR.title) #this triggered the error
+        print(testR.title)
     except:
         print("ERROR- " + str(releaseNum) + " not found.")
     else:
@@ -37,7 +37,9 @@ for release in finalList:
     path = "coverImages/" + str(release.id) + ".jpeg"
     path2 = "coverImages/" + str(release.id) + ".png"
     if not os.path.isfile(path2):
-        urllib.request.urlretrieve(release.images[0]['uri'], path)
+        r = requests.get(release.images[0]['uri'])
+        with open(path, 'wb') as outfile:
+            outfile.write(r.content)
         #raylib does not support jpg, convert to png.
         im = Image.open(path)
         im.save(path2)

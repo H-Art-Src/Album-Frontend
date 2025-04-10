@@ -2,8 +2,8 @@
 //Author: James R.
 
 
-#include "raylib.h"
-#include "raymath.h"
+#include "../vendor/raylib/src/raylib.h"
+#include "../vendor/raylib/src/raymath.h"
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
