@@ -4,6 +4,8 @@ import ctypes as c
 from ctypes import CDLL, Structure
 import discogs_client
 import requests
+import shutil
+import urllib.request
 import os
 from PIL import Image
 
@@ -37,13 +39,15 @@ for release in finalList:
     path = "coverImages/" + str(release.id) + ".jpeg"
     path2 = "coverImages/" + str(release.id) + ".png"
     if not os.path.isfile(path2):
-        r = requests.get(release.images[0]['uri'])
-        with open(path, 'wb') as outfile:
-            outfile.write(r.content)
-        #raylib does not support jpg, convert to png.
-        im = Image.open(path)
-        im.save(path2)
-        os.remove(path)
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        result = requests.get(release.images[0]['uri'], headers=headers)
+        if result.status_code == 200:
+            with open(path, 'wb') as f:
+                f.write(result.content)
+            #raylib does not support jpeg, convert to png.
+            im = Image.open(path)
+            im.save(path2)
+            os.remove(path)
 
     #raylib struct: titles, description body (for now just first artist), image/album cover path
     entryArr.__setitem__(i , (albumEntry( release.title.encode("ascii") , release.artists[0].name.encode("ascii")  , path2.encode("ascii") ) ))
@@ -53,12 +57,10 @@ for release in finalList:
     i += 1
 
 #--Pass the array of structs to c library.
-try:
-    uiFunc = CDLL("build/ui.so")
-    @c.CFUNCTYPE(None)
-    def callback():
-        print("test callback")
-    #call raylib loop
-    uiFunc.justgo(callback , entryArr , len(finalList))
-except:
-    print("No ui.so file found or error.")
+uiFunc = CDLL("ui.so")
+@c.CFUNCTYPE(None)
+def callback():
+    print("test callback")
+#call raylib loop
+uiFunc.justgo(callback , entryArr , len(finalList))
+
