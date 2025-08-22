@@ -407,7 +407,7 @@ static bool drawButton(char* text, Rectangle rec ){
 static bool checkCollision(Camera camera,Vector3 origin,float buttonScaleX, float buttonScaleY, float buttonScaleZ)
 {
     if (GLOBAL_HOVERING) return false;//always false if hovering over a 2D button.
-    Ray ray = GetMouseRay(GetMousePosition(), camera);
+    Ray ray = GetScreenToWorldRay(GetMousePosition(), camera);
     RayCollision collision = GetRayCollisionBox(ray,
     (BoundingBox){(Vector3){ origin.x - buttonScaleX, origin.y - buttonScaleY, origin.z - buttonScaleZ },
     (Vector3){ origin.x + buttonScaleX, origin.y + buttonScaleY, origin.z + buttonScaleZ }});
