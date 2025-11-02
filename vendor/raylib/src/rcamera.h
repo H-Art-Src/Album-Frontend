@@ -162,6 +162,7 @@ RLAPI Matrix GetCameraProjectionMatrix(Camera* camera, float aspect);
 
 #endif // RCAMERA_H
 
+
 /***********************************************************************************
 *
 *   CAMERA IMPLEMENTATION
@@ -443,17 +444,11 @@ void UpdateCamera(Camera *camera, int mode)
     bool lockView = ((mode == CAMERA_FREE) || (mode == CAMERA_FIRST_PERSON) || (mode == CAMERA_THIRD_PERSON) || (mode == CAMERA_ORBITAL));
     bool rotateUp = false;
 
-    // Camera speeds based on frame time
-    float cameraMoveSpeed = CAMERA_MOVE_SPEED*GetFrameTime();
-    float cameraRotationSpeed = CAMERA_ROTATION_SPEED*GetFrameTime();
-    float cameraPanSpeed = CAMERA_PAN_SPEED*GetFrameTime();
-    float cameraOrbitalSpeed = CAMERA_ORBITAL_SPEED*GetFrameTime();
-
     if (mode == CAMERA_CUSTOM) {}
     else if (mode == CAMERA_ORBITAL)
     {
         // Orbital can just orbit
-        Matrix rotation = MatrixRotate(GetCameraUp(camera), cameraOrbitalSpeed);
+        Matrix rotation = MatrixRotate(GetCameraUp(camera), CAMERA_ORBITAL_SPEED*GetFrameTime());
         Vector3 view = Vector3Subtract(camera->position, camera->target);
         view = Vector3Transform(view, rotation);
         camera->position = Vector3Add(camera->target, view);
@@ -461,22 +456,22 @@ void UpdateCamera(Camera *camera, int mode)
     else
     {
         // Camera rotation
-        if (IsKeyDown(KEY_DOWN)) CameraPitch(camera, -cameraRotationSpeed, lockView, rotateAroundTarget, rotateUp);
-        if (IsKeyDown(KEY_UP)) CameraPitch(camera, cameraRotationSpeed, lockView, rotateAroundTarget, rotateUp);
-        if (IsKeyDown(KEY_RIGHT)) CameraYaw(camera, -cameraRotationSpeed, rotateAroundTarget);
-        if (IsKeyDown(KEY_LEFT)) CameraYaw(camera, cameraRotationSpeed, rotateAroundTarget);
-        if (IsKeyDown(KEY_Q)) CameraRoll(camera, -cameraRotationSpeed);
-        if (IsKeyDown(KEY_E)) CameraRoll(camera, cameraRotationSpeed);
+        if (IsKeyDown(KEY_DOWN)) CameraPitch(camera, -CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
+        if (IsKeyDown(KEY_UP)) CameraPitch(camera, CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
+        if (IsKeyDown(KEY_RIGHT)) CameraYaw(camera, -CAMERA_ROTATION_SPEED, rotateAroundTarget);
+        if (IsKeyDown(KEY_LEFT)) CameraYaw(camera, CAMERA_ROTATION_SPEED, rotateAroundTarget);
+        if (IsKeyDown(KEY_Q)) CameraRoll(camera, -CAMERA_ROTATION_SPEED);
+        if (IsKeyDown(KEY_E)) CameraRoll(camera, CAMERA_ROTATION_SPEED);
 
         // Camera movement
         // Camera pan (for CAMERA_FREE)
         if ((mode == CAMERA_FREE) && (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)))
         {
             const Vector2 mouseDelta = GetMouseDelta();
-            if (mouseDelta.x > 0.0f) CameraMoveRight(camera, cameraPanSpeed, moveInWorldPlane);
-            if (mouseDelta.x < 0.0f) CameraMoveRight(camera, -cameraPanSpeed, moveInWorldPlane);
-            if (mouseDelta.y > 0.0f) CameraMoveUp(camera, -cameraPanSpeed);
-            if (mouseDelta.y < 0.0f) CameraMoveUp(camera, cameraPanSpeed);
+            if (mouseDelta.x > 0.0f) CameraMoveRight(camera, CAMERA_PAN_SPEED, moveInWorldPlane);
+            if (mouseDelta.x < 0.0f) CameraMoveRight(camera, -CAMERA_PAN_SPEED, moveInWorldPlane);
+            if (mouseDelta.y > 0.0f) CameraMoveUp(camera, -CAMERA_PAN_SPEED);
+            if (mouseDelta.y < 0.0f) CameraMoveUp(camera, CAMERA_PAN_SPEED);
         }
         else
         {
@@ -486,6 +481,7 @@ void UpdateCamera(Camera *camera, int mode)
         }
 
         // Keyboard support
+        float cameraMoveSpeed = CAMERA_MOVE_SPEED*GetFrameTime();
         if (IsKeyDown(KEY_W)) CameraMoveForward(camera, cameraMoveSpeed, moveInWorldPlane);
         if (IsKeyDown(KEY_A)) CameraMoveRight(camera, -cameraMoveSpeed, moveInWorldPlane);
         if (IsKeyDown(KEY_S)) CameraMoveForward(camera, -cameraMoveSpeed, moveInWorldPlane);

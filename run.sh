@@ -1,7 +1,7 @@
 #!/bin/sh
 mkdir build
 mkdir build/coverImages
-cc -fPIC -shared -o build/ui.so src/ui.c -s
+cc -fPIC -shared -o build/ui.so src/ui.c -lraylib -s
 if [ $? -ne 0 ]
 then
     echo "Failure"

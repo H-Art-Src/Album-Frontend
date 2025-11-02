@@ -74,8 +74,6 @@
 typedef struct {
     GLFWwindow *handle;                 // GLFW window handle (graphic device)
     bool ourFullscreen;                 // Internal var to filter our handling of fullscreen vs the user handling of fullscreen
-    int unmaximizedWidth;               // Internal var to store the unmaximized window (canvas) width
-    int unmaximizedHeight;              // Internal var to store the unmaximized window (canvas) height
 } PlatformData;
 
 //----------------------------------------------------------------------------------
@@ -319,18 +317,7 @@ void ToggleBorderlessWindowed(void)
 // Set window state: maximized, if resizable
 void MaximizeWindow(void)
 {
-    if (glfwGetWindowAttrib(platform.handle, GLFW_RESIZABLE) == GLFW_TRUE && !(CORE.Window.flags & FLAG_WINDOW_MAXIMIZED))
-    {
-        platform.unmaximizedWidth = CORE.Window.screen.width;
-        platform.unmaximizedHeight = CORE.Window.screen.height;
-
-        const int tabWidth = EM_ASM_INT( return window.innerWidth; );
-        const int tabHeight = EM_ASM_INT( return window.innerHeight; );
-
-        if (tabWidth && tabHeight) glfwSetWindowSize(platform.handle, tabWidth, tabHeight);
-
-        CORE.Window.flags |= FLAG_WINDOW_MAXIMIZED;
-    }
+    TRACELOG(LOG_WARNING, "MaximizeWindow() not available on target platform");
 }
 
 // Set window state: minimized
@@ -342,12 +329,7 @@ void MinimizeWindow(void)
 // Set window state: not minimized/maximized
 void RestoreWindow(void)
 {
-    if (glfwGetWindowAttrib(platform.handle, GLFW_RESIZABLE) == GLFW_TRUE && (CORE.Window.flags & FLAG_WINDOW_MAXIMIZED))
-    {
-        if (platform.unmaximizedWidth && platform.unmaximizedHeight) glfwSetWindowSize(platform.handle, platform.unmaximizedWidth, platform.unmaximizedHeight);
-
-        CORE.Window.flags &= ~FLAG_WINDOW_MAXIMIZED;
-    }
+    TRACELOG(LOG_WARNING, "RestoreWindow() not available on target platform");
 }
 
 // Set window configuration state using flags
@@ -416,20 +398,9 @@ void SetWindowState(unsigned int flags)
     }
 
     // State change: FLAG_WINDOW_MAXIMIZED
-    if (((CORE.Window.flags & FLAG_WINDOW_MAXIMIZED) != (flags & FLAG_WINDOW_MAXIMIZED)) && ((flags & FLAG_WINDOW_MAXIMIZED) > 0))
+    if ((flags & FLAG_WINDOW_MAXIMIZED) > 0)
     {
-        if (glfwGetWindowAttrib(platform.handle, GLFW_RESIZABLE) == GLFW_TRUE)
-        {
-            platform.unmaximizedWidth = CORE.Window.screen.width;
-            platform.unmaximizedHeight = CORE.Window.screen.height;
-
-            const int tabWidth = EM_ASM_INT( return window.innerWidth; );
-            const int tabHeight = EM_ASM_INT( return window.innerHeight; );
-
-            if (tabWidth && tabHeight) glfwSetWindowSize(platform.handle, tabWidth, tabHeight);
-
-            CORE.Window.flags |= FLAG_WINDOW_MAXIMIZED;
-        }
+        TRACELOG(LOG_WARNING, "SetWindowState(FLAG_WINDOW_MAXIMIZED) not available on target platform");
     }
 
     // State change: FLAG_WINDOW_UNFOCUSED
@@ -545,14 +516,9 @@ void ClearWindowState(unsigned int flags)
     }
 
     // State change: FLAG_WINDOW_MAXIMIZED
-    if (((CORE.Window.flags & FLAG_WINDOW_MAXIMIZED) > 0) && ((flags & FLAG_WINDOW_MAXIMIZED) > 0))
+    if ((flags & FLAG_WINDOW_MAXIMIZED) > 0)
     {
-        if (glfwGetWindowAttrib(platform.handle, GLFW_RESIZABLE) == GLFW_TRUE)
-        {
-            if (platform.unmaximizedWidth && platform.unmaximizedHeight) glfwSetWindowSize(platform.handle, platform.unmaximizedWidth, platform.unmaximizedHeight);
-
-            CORE.Window.flags &= ~FLAG_WINDOW_MAXIMIZED;
-        }
+        TRACELOG(LOG_WARNING, "ClearWindowState(FLAG_WINDOW_MAXIMIZED) not available on target platform");
     }
 
     // State change: FLAG_WINDOW_UNDECORATED
@@ -673,9 +639,7 @@ void SetWindowSize(int width, int height)
 // Set window opacity, value opacity is between 0.0 and 1.0
 void SetWindowOpacity(float opacity)
 {
-    if (opacity >= 1.0f) opacity = 1.0f;
-    else if (opacity <= 0.0f) opacity = 0.0f;
-    EM_ASM({ document.getElementById('canvas').style.opacity = $0; }, opacity);
+    TRACELOG(LOG_WARNING, "SetWindowOpacity() not available on target platform");
 }
 
 // Set window focused
@@ -892,34 +856,9 @@ int SetGamepadMappings(const char *mappings)
 }
 
 // Set gamepad vibration
-void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float duration)
+void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor)
 {
-    if ((gamepad < MAX_GAMEPADS) && CORE.Input.Gamepad.ready[gamepad] && (duration > 0.0f))
-    {
-        if (leftMotor < 0.0f) leftMotor = 0.0f;
-        if (leftMotor > 1.0f) leftMotor = 1.0f;
-        if (rightMotor < 0.0f) rightMotor = 0.0f;
-        if (rightMotor > 1.0f) rightMotor = 1.0f;
-        if (duration > MAX_GAMEPAD_VIBRATION_TIME) duration = MAX_GAMEPAD_VIBRATION_TIME;
-        duration *= 1000.0f; // Convert duration to ms
-
-        // Note: At the moment (2024.10.21) Chrome, Edge, Opera, Safari, Android Chrome, Android Webview only support the vibrationActuator API,
-        //       and Firefox only supports the hapticActuators API
-        EM_ASM({
-            try
-            {
-                navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 });
-            }
-            catch (e)
-            {
-                try
-                {
-                    navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3);
-                }
-                catch (e) { }
-            }
-        }, gamepad, leftMotor, rightMotor, duration);
-    }
+    TRACELOG(LOG_WARNING, "GamepadSetVibration() not implemented on target platform");
 }
 
 // Set mouse position XY
@@ -995,6 +934,7 @@ void PollInputEvents(void)
     // TODO: It resets on target platform the mouse position and not filled again until a move-event,
     // so, if mouse is not moved it returns a (0, 0) position... this behaviour should be reviewed!
     //for (int i = 0; i < MAX_TOUCH_POINTS; i++) CORE.Input.Touch.position[i] = (Vector2){ 0, 0 };
+
 
     // Gamepad support using emscripten API
     // NOTE: GLFW3 joystick functionality not available in web
@@ -1639,6 +1579,9 @@ static EM_BOOL EmscriptenFullscreenChangeCallback(int eventType, const Emscripte
 //     return 1; // The event was consumed by the callback handler
 // }
 
+EM_JS(int, GetWindowInnerWidth, (), { return window.innerWidth; });
+EM_JS(int, GetWindowInnerHeight, (), { return window.innerHeight; });
+
 // Register DOM element resize event
 static EM_BOOL EmscriptenResizeCallback(int eventType, const EmscriptenUiEvent *event, void *userData)
 {
@@ -1647,8 +1590,8 @@ static EM_BOOL EmscriptenResizeCallback(int eventType, const EmscriptenUiEvent *
 
     // This event is called whenever the window changes sizes,
     // so the size of the canvas object is explicitly retrieved below
-    int width = EM_ASM_INT( return window.innerWidth; );
-    int height = EM_ASM_INT( return window.innerHeight; );
+    int width = GetWindowInnerWidth();
+    int height = GetWindowInnerHeight();
 
     if (width < (int)CORE.Window.screenMin.width) width = CORE.Window.screenMin.width;
     else if (width > (int)CORE.Window.screenMax.width && CORE.Window.screenMax.width > 0) width = CORE.Window.screenMax.width;
@@ -1778,13 +1721,10 @@ static EM_BOOL EmscriptenTouchCallback(int eventType, const EmscriptenTouchEvent
 
     // Gesture data is sent to gestures system for processing
     ProcessGestureEvent(gestureEvent);
-#endif
 
-    if (eventType == EMSCRIPTEN_EVENT_TOUCHEND)
-    {
-        CORE.Input.Touch.pointCount--;
-        if (CORE.Input.Touch.pointCount < 0) CORE.Input.Touch.pointCount = 0;
-    }
+    // Reset the pointCount for web, if it was the last Touch End event
+    if (eventType == EMSCRIPTEN_EVENT_TOUCHEND && CORE.Input.Touch.pointCount == 1) CORE.Input.Touch.pointCount = 0;
+#endif
 
     return 1; // The event was consumed by the callback handler
 }

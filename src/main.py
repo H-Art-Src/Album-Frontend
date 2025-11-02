@@ -57,7 +57,7 @@ for release in finalList:
     i += 1
 
 #--Pass the array of structs to c library.
-uiFunc = CDLL("ui.so")
+uiFunc = CDLL(os.path.abspath("ui.so"))
 @c.CFUNCTYPE(None)
 def callback():
     print("test callback")

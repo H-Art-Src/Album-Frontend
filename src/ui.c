@@ -63,7 +63,7 @@ int justgo(void (*functionPtr)() , struct albumEntry entries[] , int size)
     strcpy(fileDir,"");
     strcat(fileDir, prefix);
     strcat(fileDir,"centering.png");    
-    Texture2D billCenterer = LoadTexture(fileDir);    // selected album texture
+    Texture2D billCenter = LoadTexture(fileDir);    // selected album texture
     strcpy(fileDir,"");
 
     // Entire billboard texture, source is used to take a segment from a larger texture.
@@ -103,7 +103,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     float gmScroll = 0.0f;
     float gmScrollMin = -5.0f;
     float gmScrollMax = gmLibSize*1.0f +2.5f;
-    float gmSeperationScale = 1.0f;
+    float gmSeparationScale = 1.0f;
     bool gmShortMode = false;
     //ANIMATION DATA 
     float scrollSmootherBank = 0.0f;
@@ -124,7 +124,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     gmScroll = 0.0f;
     gmScrollMin = -10.0f;
     gmScrollMax = gmLibSize*1.0f + 5.0f;
-    gmSeperationScale = 1.0f;
+    gmSeparationScale = 1.0f;
 
     // Main loop
     while (!WindowShouldClose())
@@ -165,7 +165,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         {
             float fadeDivide = .005;
             float alpha = (scrollSmootherBank > 0.0f)? (int)(scrollSmootherBank/fadeDivide) : (int)(scrollSmootherBank/-fadeDivide);
-            DrawBillboard(camera, billCenterer, (Vector3){ -6.0f, 2.5f, 2.0f } , 2.0f, (Color){255,255,255,(alpha>255)? 255: alpha});
+            DrawBillboard(camera, billCenter, (Vector3){ -6.0f, 2.5f, 2.0f } , 2.0f, (Color){255,255,255,(alpha>255)? 255: alpha});
         }
         gmScroll = (scrollDelta < 0)? (( (gmScroll + scrollDelta) <= gmScrollMin )? gmScrollMin : gmScroll + scrollDelta) : ( ((gmScroll + scrollDelta) >= gmScrollMax)? gmScrollMax : gmScroll + scrollDelta); // just cannot pass scroll max and scrollmin
         Vector3 lastSelectionLocationTEMP = (Vector3){ -10.0f, -10.0f, 0.0f };
@@ -176,7 +176,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
             Texture2D billCover = gmCovers[i%5];
             billCover.width = 256;
             billCover.height = 256;
-            Vector3 titleCardOrigin = (Vector3){-5.0f , 5.0f + gmScroll*2.0f + ((float)i) * 3.0f * gmSeperationScale - (float)gmLibSize*3.0f , 0.0f };
+            Vector3 titleCardOrigin = (Vector3){-5.0f , 5.0f + gmScroll*2.0f + ((float)i) * 3.0f * gmSeparationScale - (float)gmLibSize*3.0f , 0.0f };
             float bbSize = 2.0f;
             if(gmShortMode)
             {
@@ -199,7 +199,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
                 if (gmSelect == i) 
                 {
                     reCenterSelect = true;
-                    scrollSmootherBank = ((-2.5f - ((float)i) * 3.0f * gmSeperationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
+                    scrollSmootherBank = ((-2.5f - ((float)i) * 3.0f * gmSeparationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
                 }
                 else selectMade = i;
             }
@@ -229,9 +229,9 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
                     lastSelectionLocation = (Vector3){GetRandomValue(-1,1),GetRandomValue(-1,1),GetRandomValue(-1,1)};
                     selectionChangeLerp = 0.8f;
                     gmLastSelect = gmSelect;*/ //optional animation: You already selected this!
-                    scrollSmootherBank = ((-2.5f - ((float)i) * 3.0f * gmSeperationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
+                    scrollSmootherBank = ((-2.5f - ((float)i) * 3.0f * gmSeparationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
                     reCenterSelect = true;
-                    //gmScroll = (-2.5f - ((float)i) * 3.0f * gmSeperationScale + (float)gmLibSize*3.0f)/2;
+                    //gmScroll = (-2.5f - ((float)i) * 3.0f * gmSeparationScale + (float)gmLibSize*3.0f)/2;
                 }
                 else// selecting
                 {
@@ -247,14 +247,14 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
             gmSelect = selectMade;
             selectionChangeLerp = 0.0f;
             lastSelectionLocation = lastSelectionLocationTEMP;
-            if(gmShortMode)scrollSmootherBank = ((-2.5f - ((float)gmSelect) * 3.0f * gmSeperationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
+            if(gmShortMode)scrollSmootherBank = ((-2.5f - ((float)gmSelect) * 3.0f * gmSeparationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
             else finishedSelectionChange = false;
             currentScrollSpeed = .025f;
         }
         //auto scroll to location when finishing animation
         else if (!finishedSelectionChange && selectionChangeLerp > .99f)
         {
-            scrollSmootherBank = ((-2.5f - ((float)gmSelect) * 3.0f * gmSeperationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
+            scrollSmootherBank = ((-2.5f - ((float)gmSelect) * 3.0f * gmSeparationScale + (float)gmLibSize*3.0f)/2) - gmScroll;
             finishedSelectionChange = true;
         }
 
@@ -268,7 +268,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         DrawRectangleLinesEx(container, 2, borderColor);    // Draw container border
         for (int i=0; i < gmLibSize; i++) //2d elements for the list
         {
-            Vector3 titleCardOrigin = (Vector3){-5.0f , 5.0f + gmScroll*2.0f  + ((float)i) * 3.0f * gmSeperationScale - (float)gmLibSize*3.0f  , 0.0f };
+            Vector3 titleCardOrigin = (Vector3){-5.0f , 5.0f + gmScroll*2.0f  + ((float)i) * 3.0f * gmSeparationScale - (float)gmLibSize*3.0f  , 0.0f };
             Vector2 w2s = GetWorldToScreen(titleCardOrigin , camera);
             if (gmShortMode) {DrawText(entries[i].title,  w2s.x , w2s.y - 8 , (int)16.0f * screenScale.y, ORANGE);}
             else
@@ -300,19 +300,19 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         {
             gmShortMode = !gmShortMode;
             if (gmShortMode)
-            {//5.0f + gmScroll*2.0f  + ((float)i) * 3.0f * gmSeperationScale - (float)gmLibSize*3.0f
-                gmSeperationScale = 0.22f;
-                gmScrollMin =   gmLibSize*1.5f*(1.0f - gmSeperationScale) - 2.0f;
+            {//5.0f + gmScroll*2.0f  + ((float)i) * 3.0f * gmSeparationScale - (float)gmLibSize*3.0f
+                gmSeparationScale = 0.22f;
+                gmScrollMin =   gmLibSize*1.5f*(1.0f - gmSeparationScale) - 2.0f;
                 gmScrollMax = gmLibSize*1.5f - 1.0f;
                 gmScroll = gmScrollMin;
-                scrollSmootherBank = ((-2.5f - ((float)gmSelect) * 3.0f * gmSeperationScale + (float)gmLibSize*3.0f)/2) - gmScroll;//gmScrollMax;
+                scrollSmootherBank = ((-2.5f - ((float)gmSelect) * 3.0f * gmSeparationScale + (float)gmLibSize*3.0f)/2) - gmScroll;//gmScrollMax;
             }
             else
             {
                 //gmScroll = 0.0f;
                 gmScrollMin = -10.0f;
                 gmScrollMax = gmLibSize*1.0f + 5.0f;
-                gmSeperationScale = 1.0f;
+                gmSeparationScale = 1.0f;
             }
         }
         //----------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     //--------------------------------------------------------------------------------------
     UnloadTexture(bill);        // Unload texture
     UnloadTexture(billSelected);
-    UnloadTexture(billCenterer);
+    UnloadTexture(billCenter);
     for(int i=0; i < gmLibSize; i++) UnloadTexture(gmCovers[i]);//sizeof(gmCovers);
     CloseWindow();              // Close window and OpenGL context
     //free up memory
